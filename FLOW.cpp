@@ -19,10 +19,12 @@ struct Dinic {
     vector<int> used;
     vector<int> pt;
     vector<int> dist;
+    int st, en;
     int T = 1;
 
-    Dinic(int n_) {
+    Dinic(int n_, int st_, int en_) {
         n = n_;
+        st = st_, en = en_;
         g.resize(n);
         used.resize(n);
         pt.resize(n);
@@ -44,13 +46,13 @@ struct Dinic {
                 }
             }
         }
-        return dist[n - 1] != -1;
+        return dist[en] != -1;
     }
 
     int dfs(int v, int push, int lb) {
-        if (v == n - 1) return push;
+        if (v == en) return push;
         used[v] = T;
-        for (int i = pt[v]; i < g[v].size(); i++) {
+        for (int i = pt[v]; i < (int) g[v].size(); i++) {
             if (used[edges[g[v][i]].to] != T && dist[v] + 1 == dist[edges[g[v][i]].to] &&
                 edges[g[v][i]].c - edges[g[v][i]].fl >= lb) {
                 int add = dfs(edges[g[v][i]].to, min(push, edges[g[v][i]].c - edges[g[v][i]].fl), lb);
@@ -94,14 +96,12 @@ struct Dinic {
         vector<int> edges;
     };
 
-    vector<int> st;
-
-    int dfsik(int v, int f) {
-        if (v == n - 1) return f;
+    int dfsik(int v, int f, vector<int> &s) {
+        if (v == en) return f;
         for (int id: g[v]) {
             if (edges[id].fl > 0 && edges[id].c > 0) {
-                st.pb(id / 2);
-                int add = dfsik(edges[id].to, min(f, edges[id].fl));
+                s.pb(id);
+                int add = dfsik(edges[id].to, min(f, edges[id].fl), s);
                 edges[id].fl -= add;
                 return add;
             }
@@ -111,11 +111,12 @@ struct Dinic {
 
     vector<dflow> decompose() {
         vector<dflow> ans;
+        vector<int> s;
         while (true) {
-            st.clear();
-            int cur = dfsik(0, MOD);
+            s.clear();
+            int cur = dfsik(st, MX, s);
             if (cur == 0) break;
-            ans.pb({cur, st});
+            ans.pb({cur, s});
         }
         return ans;
     }
