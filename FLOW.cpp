@@ -131,7 +131,7 @@ struct Dinic {
 
     vector<int> build_cut() {
         fill(used.begin(), used.end(), 0);
-        dfs_coloring(0);
+        dfs_coloring(st);
         vector<int> res;
         for (int i = 0; i < n; i++)
             for (auto j: g[i]) {
